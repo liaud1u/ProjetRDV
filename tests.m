@@ -60,7 +60,7 @@ xbarycentre = mean(col);
 ybarycentre = mean(row); 
 m = [ybarycentre, xbarycentre];
 
-t = linspace(0,2*pi,50);
+t = linspace(0,2*pi,N );
 
 R=ones(1,length(t));
 
@@ -95,6 +95,7 @@ poly(i,:) = [h-(xbarycentre+R(i)*-cos(t(i))),ybarycentre+(R(i)*sin(t(i))) ]; % �
 end 
 
 r = R ;
+ 
 
-fd = rand(1,M); % à modifier !!!
+fd = fft(r); % à modifier !!!
 end
