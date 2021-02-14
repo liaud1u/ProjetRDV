@@ -50,40 +50,46 @@ end
 end
 
 function [fd,r,m,poly] = compute_fd(img)
-N = 512; % à modifier !!!
-M = 512; % à modifier !!!
+N = 500;
+M = 500; 
+
 h = size(img,1);
 w = size(img,2);
 
 [col,row] = find(img>0);  
+
 xbarycentre = mean(col);
 ybarycentre = mean(row); 
+
 m = [ybarycentre, xbarycentre];
 
 t = linspace(0,2*pi,N );
 
-R=ones(1,length(t));
+
+maxdist = min(max(col),max(row));
+
+
+R=ones(1,length(t))*maxdist/20;
+erreur = maxdist/5;
+
 
 spawn = img(max(1,min(h,floor(xbarycentre))), max(1,min(w,floor(ybarycentre))));  
 
 poly = [];
 
 for i = 1:length(t)  
-    %if label==".\db\car"
-    %    disp([ h ,floor(m(1)+(R(i)+1)*cos(t(i))) ,  w , floor(m(2)+((R(i)+1)*sin(t(i))))  ,img( floor(m(1)+R(i)*cos(t(i))), floor(m(2)+R(i)*sin(t(i))))])
-    %end 
     
     rayon = R(i);
      
     
-    while floor(ybarycentre+(R(i)*sin(t(i))))<h && floor(ybarycentre+(R(i)*sin(t(i))))>0 &&  floor(h-(xbarycentre+R(i)*-cos(t(i))))<w && floor(h-(xbarycentre+R(i)*-cos(t(i))))>0 &&img( floor(ybarycentre+(R(i)*sin(t(i)))), floor(h-(xbarycentre+R(i)*-cos(t(i))))) ==spawn 
+     
+    while (floor((xbarycentre+(R(i)*sin(t(i)))))<h && floor((xbarycentre+(R(i)*sin(t(i)))))>0 &&  floor((ybarycentre+R(i)*-cos(t(i))))<w && floor((ybarycentre+R(i)*-cos(t(i))))>0 &&img( floor((xbarycentre+(R(i)*sin(t(i))))), floor((ybarycentre+R(i)*-cos(t(i))))) ==spawn) ||  (floor((xbarycentre+((R(i)+erreur)*sin(t(i)))))<h && floor((xbarycentre+((R(i)+erreur)*sin(t(i)))))>0 &&  floor((ybarycentre+(R(i)+erreur)*-cos(t(i))))<w && floor((ybarycentre+(R(i)+erreur)*-cos(t(i))))>0 &&img( floor((xbarycentre+((R(i)+erreur)*sin(t(i))))), floor((ybarycentre+(R(i)+erreur)*-cos(t(i))))) ==spawn)
       
         
-    %if label==".\db\car"
-    %    disp([ h ,floor(m(1)+(R(i)+1)*cos(t(i))) ,  w , floor(m(2)+((R(i)+1)*sin(t(i))))  ,img( floor(m(1)+R(i)*cos(t(i))), floor(m(2)+R(i)*sin(t(i))))])
-    %end 
+   
             R(i)=1+R(i);  
             rayon = (R(i)+1);
+            
     end
     
 end  
@@ -91,11 +97,14 @@ end
 poly = ones(length(R),2);
 
 for i = 1:length(R-1) 
-poly(i,:) = [h-(xbarycentre+R(i)*-cos(t(i))),ybarycentre+(R(i)*sin(t(i))) ]; % à modifier !!!
+    
+    
+poly(i,:) = [(ybarycentre+R(i)*-cos(t(i))),(xbarycentre+(R(i)*sin(t(i)))) ]; % à modifier !!!
 end 
 
-r = R ;
+r = R;
  
+rf_r0 = abs(R)/abs(R(1));
 
-fd = fft(r); % à modifier !!!
+fd = fft(rf_r0(1:M)); 
 end
