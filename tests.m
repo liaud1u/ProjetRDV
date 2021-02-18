@@ -56,8 +56,10 @@ M = 500;
 h = size(img,1);
 w = size(img,2);
 
+% Récupération de tout les pixels blanc
 [col,row] = find(img>0);  
 
+% Calcul du barycentre
 xbarycentre = mean(col);
 ybarycentre = mean(row); 
 
@@ -65,28 +67,31 @@ m = [ybarycentre, xbarycentre];
 
 t = linspace(0,2*pi,N );
 
-
+% Calcul de la distance max
 maxdist = min(max(col),max(row));
 
-
+% On part d'un cercle de rayon maxdist/20 
 R=ones(1,length(t))*maxdist/20;
+
+% On ce donne une marge d'erreur de maxdist/20 (pour passer à travers les
+% petites tâches noires) 
 erreur = maxdist/5;
 
-
+% On garde la couleur du point de début de l'algo
 spawn = img(max(1,min(h,floor(xbarycentre))), max(1,min(w,floor(ybarycentre))));  
 
 poly = [];
 
 for i = 1:length(t)  
-    
     rayon = R(i);
-     
-    
-     
+
+    % On regarde si le pixel courant est de la couleur du point de départ
+    % (barycentre), si ce n'est pas le cas, on regarde si le pixel à une
+    % distance d'erreur est aussi différent de la couleur du barycentre. Si
+    % un des deux pixels est de la même couleur que le point de début,
+    % alors on continue la boucle en augmentant le rayon
     while (floor((xbarycentre+(R(i)*sin(t(i)))))<h && floor((xbarycentre+(R(i)*sin(t(i)))))>0 &&  floor((ybarycentre+R(i)*-cos(t(i))))<w && floor((ybarycentre+R(i)*-cos(t(i))))>0 &&img( floor((xbarycentre+(R(i)*sin(t(i))))), floor((ybarycentre+R(i)*-cos(t(i))))) ==spawn) ||  (floor((xbarycentre+((R(i)+erreur)*sin(t(i)))))<h && floor((xbarycentre+((R(i)+erreur)*sin(t(i)))))>0 &&  floor((ybarycentre+(R(i)+erreur)*-cos(t(i))))<w && floor((ybarycentre+(R(i)+erreur)*-cos(t(i))))>0 &&img( floor((xbarycentre+((R(i)+erreur)*sin(t(i))))), floor((ybarycentre+(R(i)+erreur)*-cos(t(i))))) ==spawn)
-      
         
-   
             R(i)=1+R(i);  
             rayon = (R(i)+1);
             
@@ -98,12 +103,13 @@ poly = ones(length(R),2);
 
 for i = 1:length(R-1) 
     
-    
-poly(i,:) = [(ybarycentre+R(i)*-cos(t(i))),(xbarycentre+(R(i)*sin(t(i)))) ]; % à modifier !!!
+%Tracage de la ligne
+poly(i,:) = [(ybarycentre+R(i)*-cos(t(i))),(xbarycentre+(R(i)*sin(t(i)))) ];  
 end 
 
 r = R;
- 
+
+%Calcul de la TF
 rf_r0 = abs(R)/abs(R(1));
 
 fd = fft(rf_r0(1:M)); 
